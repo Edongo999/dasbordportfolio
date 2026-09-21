@@ -1,11 +1,7 @@
-
-
-
-
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "https://laravel-backend-portfolio.onrender.com/api", // ✅ URL publique Render
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
