@@ -7,7 +7,7 @@ html {
 
 body {
   /* Fond gris uniforme pour tout le site */
-  background-color: black; /* équivalent Tailwind bg-gray-800 */
+  background-color: theme('colors.gray.300'); /* équivalent Tailwind bg-gray-800 */
   min-height: 100vh;
 }
 
@@ -67,4 +67,90 @@ body {
 .animate-gradient-x {
   background-size: 200% 200%;
   animation: gradient-x 4s ease infinite;
+}
+
+
+/* pour l'apparition du modal de la publication  */
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+/* Classes utilitaires */
+.animate-slideDown {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-in forwards;
+}
+
+
+/* ✅ Animations personnalisées  pour le modal  profil*/
+@layer utilities {
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out forwards;
+  }
+  .animate-fadeOut {
+    animation: fadeOut 0.2s ease-in forwards;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+}
+
+
+/* animation pour la navigation de transition */
+@keyframes navigationLoader {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(200%);
+  }
+
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.navigation-loader {
+  animation: navigationLoader 0.8s ease-in-out infinite;
 }
