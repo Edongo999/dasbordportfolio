@@ -25,6 +25,10 @@ interface ArticlesTableProps {
   onView: (article: ArticleManage) => void;
 }
 
+// ✅ utilitaire pour générer l’URL image en HTTPS
+const getImageUrl = (path: string) =>
+  `https://laravel-backend-portfolio.onrender.com/storage/${path}`;
+
 export default function ArticlesTable({
   articles,
   onEdit,
@@ -45,27 +49,21 @@ export default function ArticlesTable({
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 ID
               </th>
-
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Titre
               </th>
-
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Image
               </th>
-
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Contenu
               </th>
-
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Statut
               </th>
-
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Dates
               </th>
-
               <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-gray-500">
                 Actions
               </th>
@@ -95,7 +93,6 @@ export default function ArticlesTable({
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                       <Eye size={14} />
                     </div>
-
                     <span className="truncate text-sm font-semibold text-gray-800 transition-colors hover:text-blue-600">
                       {article.title.length > 15
                         ? article.title.slice(0, 15) + "..."
@@ -111,7 +108,7 @@ export default function ArticlesTable({
                 >
                   {article.image ? (
                     <img
-                      src={`http://127.0.0.1:8000/storage/${article.image}`}
+                      src={getImageUrl(article.image)} // ✅ Render HTTPS
                       alt={article.title}
                       className="h-12 w-14 rounded-xl object-cover shadow-sm transition-transform duration-200 hover:scale-105"
                     />
@@ -149,7 +146,6 @@ export default function ArticlesTable({
                         article.archived ? "bg-gray-400" : "bg-green-500"
                       }`}
                     />
-
                     {article.archived ? "Archivé" : "Actif"}
                   </span>
                 </td>
@@ -163,12 +159,10 @@ export default function ArticlesTable({
                         size={14}
                         className="mt-0.5 shrink-0 text-green-500"
                       />
-
                       <div className="min-w-0">
                         <p className="text-[10px] font-semibold uppercase text-gray-400">
                           Créé le
                         </p>
-
                         <p className="text-[11px] font-medium text-gray-600">
                           {new Date(article.created_at).toLocaleString(
                             "fr-FR",
@@ -191,12 +185,10 @@ export default function ArticlesTable({
                           size={14}
                           className="mt-0.5 shrink-0 text-blue-500"
                         />
-
                         <div className="min-w-0">
                           <p className="text-[10px] font-semibold uppercase text-gray-400">
                             Modifié le
                           </p>
-
                           <p className="text-[11px] font-medium text-gray-600">
                             {new Date(article.updated_at).toLocaleString(
                               "fr-FR",

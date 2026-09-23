@@ -45,7 +45,7 @@ export default function EditArticleModal({
 
       setImagePreview(
         article.image
-          ? `http://127.0.0.1:8000/storage/${article.image}`
+          ? `https://laravel-backend-portfolio.onrender.com/storage/${article.image}`
           : undefined,
       );
 
@@ -83,7 +83,7 @@ export default function EditArticleModal({
       // =====================================================
 
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/articles/${article.id}?_method=PUT`,
+        `https://laravel-backend-portfolio.onrender.com/api/articles/${article.id}?_method=PUT`,
         formDataToSend,
         {
           headers: {
@@ -117,7 +117,7 @@ export default function EditArticleModal({
 
       axios
         .post(
-          `http://127.0.0.1:8000/api/articles/${article.id}/translate`,
+          `https://laravel-backend-portfolio.onrender.com/api/articles/${article.id}/translate`,
           {},
           {
             headers: {

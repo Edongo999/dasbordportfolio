@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Modal from "../Modal";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import toast from "react-hot-toast";
-import LoadingSpinner from "./LoadingSpinner";
-import SuccessMessage from "./SuccessMessage";
+import LoadingSpinner from "@/components/articles/LoadingSpinner";
+import SuccessMessage from "@/components/articles/SuccessMessage";
 import ArticleForm from "@/components/articles/ArticlesForm";
+import axiosInstance from "@/components/utils/axiosInstance";
 
 interface PublishArticleModalProps {
   open: boolean;
@@ -70,7 +71,6 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       reader.onprogress = (event) => {
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
-
           setProgress(percent);
         }
       };
@@ -92,46 +92,34 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
 
     try {
       const formData = new FormData();
-
       formData.append("title", title);
       formData.append("content", content);
       formData.append("category", category);
 
       if (image) {
         const blob = await fetch(image).then((res) => res.blob());
-
         formData.append("image", blob, "article.jpg");
       }
 
       const token = localStorage.getItem("token");
 
-      // =====================================================
-      // 1. PUBLIER L'ARTICLE
-      // =====================================================
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/articles",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
+      // 1️⃣ Publier l'article
+      const response = await axiosInstance.post("/articles", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         },
-      );
+      });
 
       const newArticle = response.data.article;
 
-      // =====================================================
-      // 2. AJOUTER L'ARTICLE AU DASHBOARD
-      // =====================================================
+      // 2️⃣ Ajouter au dashboard
       onPublish(newArticle);
 
-      // =====================================================
-      // 3. LANCER LA TRADUCTION EN ARRIÈRE-PLAN
-      // =====================================================
-      axios
+      // 3️⃣ Traduction en arrière-plan
+      axiosInstance
         .post(
-          `http://127.0.0.1:8000/api/articles/${newArticle.id}/translate`,
+          `/articles/${newArticle.id}/translate`,
           {},
           {
             headers: {
@@ -146,15 +134,10 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
           );
         })
         .catch((translationError) => {
-          console.error(
-            "❌ Erreur lors de la traduction de l'article :",
-            translationError,
-          );
+          console.error("❌ Erreur traduction :", translationError);
         });
 
-      // =====================================================
-      // 4. AFFICHER LE SUCCÈS IMMÉDIATEMENT
-      // =====================================================
+      // 4️⃣ Feedback succès
       setSuccess(true);
 
       setTimeout(() => {
@@ -167,22 +150,15 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
         message?: string;
         errors?: Record<string, string[]>;
       }>;
-
       console.error("Erreur Axios complète :", axiosError);
 
       if (axiosError.response?.data) {
         const data = axiosError.response.data;
-
         if (data.message) {
           toast.error(data.message);
         } else if (data.errors) {
           const firstError = Object.values(data.errors)[0]?.[0];
-
-          if (firstError) {
-            toast.error(firstError);
-          } else {
-            toast.error("Impossible de publier l’article");
-          }
+          toast.error(firstError || "Impossible de publier l’article");
         } else {
           toast.error("Impossible de publier l’article");
         }
@@ -204,7 +180,6 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       title="Publier un article"
     >
       <div className="w-full">
-        {/* En-tête visuel */}
         {!loading && !success && (
           <div className="mb-5 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-indigo-50 px-4 py-3">
             <div className="flex items-center gap-3">
@@ -224,12 +199,10 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
                   <path d="M5 12h14" />
                 </svg>
               </div>
-
               <div className="min-w-0">
                 <h3 className="text-sm font-bold text-gray-800">
                   Nouvelle publication
                 </h3>
-
                 <p className="mt-0.5 text-xs text-gray-500">
                   Partagez une actualité ou un projet avec vos visiteurs.
                 </p>
@@ -238,21 +211,18 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
           </div>
         )}
 
-        {/* Chargement */}
         {loading && (
           <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-gray-100 bg-gray-50/50">
             <LoadingSpinner />
           </div>
         )}
 
-        {/* Succès */}
         {success && (
           <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-green-100 bg-green-50/40">
             <SuccessMessage />
           </div>
         )}
 
-        {/* Formulaire */}
         {!loading && !success && (
           <div className="rounded-xl border border-gray-100 bg-white">
             <ArticleForm
