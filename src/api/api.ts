@@ -1,10 +1,10 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api", // ✅ cohérence partout
+  baseURL: "https://laravel-backend-portfolio.onrender.com/api", //  URL publique Render
 });
 
-// ✅ Intercepteur qui ajoute automatiquement le token
+//  Intercepteur qui ajoute automatiquement le token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
