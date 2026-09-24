@@ -209,7 +209,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
               title={title}
               content={content}
               category={category}
-              image={image ? image.name : undefined} // ✅ afficher le nom du fichier
+              image={image || undefined}
               progress={progress}
               error={error}
               onTitleChange={(e) => setTitle(e.target.value)}

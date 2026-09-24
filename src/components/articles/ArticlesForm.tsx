@@ -5,7 +5,7 @@ interface ArticleFormProps {
   title: string;
   content: string;
   category: string;
-  image?: string;
+  image?: File | null; // ✅ corriger ici
   progress: number;
   error?: string | null;
   onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -56,6 +56,15 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       <option value="Design">Design</option>
       <option value="Actu">Actu</option>
     </select>
+
+    {/* ✅ afficher le nom du fichier si présent */}
+    {image ? (
+      <div className="text-sm text-gray-600">
+        Fichier sélectionné : {image.name}
+      </div>
+    ) : (
+      <p className="text-sm text-gray-400">Aucune image sélectionnée</p>
+    )}
 
     <ImageUploader
       image={image}
