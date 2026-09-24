@@ -24,10 +24,19 @@ interface ArticlesTableProps {
   onPageChange: (page: number) => void;
   onView: (article: ArticleManage) => void;
 }
+// =====================================================
 
-// ✅ utilitaire pour générer l’URL image en HTTPS
-const getImageUrl = (path: string) =>
-  `https://laravel-backend-portfolio.onrender.com/storage/${path}`;
+const getImageUrl = (image: string | null | undefined) => {
+  if (!image) return "";
+
+  // L'API renvoie déjà une URL complète
+  if (image.startsWith("http://") || image.startsWith("https://")) {
+    return image;
+  }
+
+  // L'API renvoie uniquement le chemin
+  return `https://laravel-backend-portfolio.onrender.com/storage/${image}`;
+};
 
 export default function ArticlesTable({
   articles,
@@ -49,21 +58,27 @@ export default function ArticlesTable({
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 ID
               </th>
+
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Titre
               </th>
+
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Image
               </th>
+
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Contenu
               </th>
+
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Statut
               </th>
+
               <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
                 Dates
               </th>
+
               <th className="px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-gray-500">
                 Actions
               </th>
@@ -76,14 +91,20 @@ export default function ArticlesTable({
                 key={article.id}
                 className="border-b border-gray-100 transition-colors duration-200 last:border-0 hover:bg-blue-50/40"
               >
-                {/* ID */}
+                {/* =================================================
+                    ID
+                ================================================= */}
+
                 <td className="px-3 py-3">
                   <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-lg bg-gray-100 px-2 text-xs font-bold text-gray-600">
                     #{article.id}
                   </span>
                 </td>
 
-                {/* TITRE */}
+                {/* =================================================
+                    TITRE
+                ================================================= */}
+
                 <td
                   className="max-w-[160px] cursor-pointer px-3 py-3"
                   onClick={() => onView(article)}
@@ -93,6 +114,7 @@ export default function ArticlesTable({
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                       <Eye size={14} />
                     </div>
+
                     <span className="truncate text-sm font-semibold text-gray-800 transition-colors hover:text-blue-600">
                       {article.title.length > 15
                         ? article.title.slice(0, 15) + "..."
@@ -101,14 +123,17 @@ export default function ArticlesTable({
                   </div>
                 </td>
 
-                {/* IMAGE */}
+                {/* =================================================
+                    IMAGE
+                ================================================= */}
+
                 <td
                   className="cursor-pointer px-3 py-3"
                   onClick={() => onView(article)}
                 >
                   {article.image ? (
                     <img
-                      src={getImageUrl(article.image)} // ✅ Render HTTPS
+                      src={getImageUrl(article.image)}
                       alt={article.title}
                       className="h-12 w-14 rounded-xl object-cover shadow-sm transition-transform duration-200 hover:scale-105"
                     />
@@ -119,7 +144,10 @@ export default function ArticlesTable({
                   )}
                 </td>
 
-                {/* CONTENU */}
+                {/* =================================================
+                    CONTENU
+                ================================================= */}
+
                 <td
                   className="max-w-[220px] cursor-pointer px-3 py-3 text-sm text-gray-600"
                   onClick={() => onView(article)}
@@ -132,7 +160,10 @@ export default function ArticlesTable({
                   </span>
                 </td>
 
-                {/* STATUT */}
+                {/* =================================================
+                    STATUT
+                ================================================= */}
+
                 <td className="px-3 py-3">
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -146,23 +177,30 @@ export default function ArticlesTable({
                         article.archived ? "bg-gray-400" : "bg-green-500"
                       }`}
                     />
+
                     {article.archived ? "Archivé" : "Actif"}
                   </span>
                 </td>
 
-                {/* DATES */}
+                {/* =================================================
+                    DATES
+                ================================================= */}
+
                 <td className="w-[190px] px-3 py-3">
                   <div className="flex flex-col gap-2">
                     {/* Créé */}
+
                     <div className="flex items-start gap-2">
                       <CalendarDays
                         size={14}
                         className="mt-0.5 shrink-0 text-green-500"
                       />
+
                       <div className="min-w-0">
                         <p className="text-[10px] font-semibold uppercase text-gray-400">
                           Créé le
                         </p>
+
                         <p className="text-[11px] font-medium text-gray-600">
                           {new Date(article.created_at).toLocaleString(
                             "fr-FR",
@@ -179,16 +217,19 @@ export default function ArticlesTable({
                     </div>
 
                     {/* Modifié */}
+
                     {article.updated_at !== article.created_at && (
                       <div className="flex items-start gap-2">
                         <Clock3
                           size={14}
                           className="mt-0.5 shrink-0 text-blue-500"
                         />
+
                         <div className="min-w-0">
                           <p className="text-[10px] font-semibold uppercase text-gray-400">
                             Modifié le
                           </p>
+
                           <p className="text-[11px] font-medium text-gray-600">
                             {new Date(article.updated_at).toLocaleString(
                               "fr-FR",
@@ -207,10 +248,14 @@ export default function ArticlesTable({
                   </div>
                 </td>
 
-                {/* ACTIONS */}
+                {/* =================================================
+                    ACTIONS
+                ================================================= */}
+
                 <td className="px-3 py-3">
                   <div className="flex items-center justify-center gap-1.5">
                     {/* Modifier */}
+
                     <button
                       type="button"
                       onClick={() => onEdit(article)}
@@ -226,6 +271,7 @@ export default function ArticlesTable({
                     </button>
 
                     {/* Supprimer */}
+
                     <button
                       type="button"
                       onClick={() => onDelete(article)}
@@ -236,6 +282,7 @@ export default function ArticlesTable({
                     </button>
 
                     {/* Archiver */}
+
                     <button
                       type="button"
                       onClick={() => onArchive(article)}
@@ -251,6 +298,7 @@ export default function ArticlesTable({
                     </button>
 
                     {/* Désarchiver */}
+
                     <button
                       type="button"
                       onClick={() => onUnarchive(article)}
@@ -272,7 +320,10 @@ export default function ArticlesTable({
         </table>
       </div>
 
-      {/* PAGINATION */}
+      {/* =================================================
+          PAGINATION
+      ================================================= */}
+
       <div className="border-t border-gray-100 bg-gray-50/50 px-4 py-3">
         <Pagination
           currentPage={articles.current_page}
