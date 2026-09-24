@@ -34,7 +34,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Tech");
-  const [image, setImage] = useState<File | null>(null); // ✅ stocker directement le File
+  const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
@@ -64,7 +64,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       }
 
       setError(null);
-      setProgress(100); // ✅ on peut mettre directement 100% car le File est prêt
+      setProgress(100);
       setImage(file);
     }
   };
@@ -77,15 +77,24 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
 
     try {
       const formData = new FormData();
+
       formData.append("title", title);
       formData.append("content", content);
       formData.append("category", category);
 
       if (image) {
-        formData.append("image", image); // ✅ envoyer directement le File
+        formData.append("image", image, image.name);
       }
 
       const token = localStorage.getItem("token");
+
+      console.log("📤 DONNÉES ENVOYÉES :");
+      console.log("Titre :", title);
+      console.log("Catégorie :", category);
+      console.log("Image :", image);
+      console.log("Nom image :", image?.name);
+      console.log("Type image :", image?.type);
+      console.log("Taille image :", image?.size);
 
       const response = await axiosInstance.post("/articles", formData, {
         headers: {
@@ -94,7 +103,10 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
         },
       });
 
+      console.log("✅ RÉPONSE LARAVEL :", response.data);
+
       const newArticle = response.data.article;
+
       onPublish(newArticle);
 
       // Traduction en arrière-plan
@@ -130,20 +142,39 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
         message?: string;
         errors?: Record<string, string[]>;
       }>;
-      console.error("Erreur Axios complète :", axiosError);
 
-      if (axiosError.response?.data) {
-        const data = axiosError.response.data;
-        if (data.message) {
-          toast.error(data.message);
-        } else if (data.errors) {
+      console.error("=================================");
+      console.error("❌ ERREUR PUBLICATION ARTICLE");
+      console.error("=================================");
+
+      console.error("🔴 STATUS :", axiosError.response?.status);
+
+      console.error("🔴 RESPONSE LARAVEL :", axiosError.response?.data);
+
+      console.error("🔴 ERRORS LARAVEL :", axiosError.response?.data?.errors);
+
+      console.error("🔴 MESSAGE LARAVEL :", axiosError.response?.data?.message);
+
+      console.error("🔴 ERREUR AXIOS COMPLÈTE :", axiosError);
+
+      const data = axiosError.response?.data;
+
+      if (data) {
+        if (data.errors) {
           const firstError = Object.values(data.errors)[0]?.[0];
-          toast.error(firstError || "Impossible de publier l’article");
+
+          if (firstError) {
+            toast.error(firstError);
+          } else {
+            toast.error("Erreur de validation Laravel.");
+          }
+        } else if (data.message) {
+          toast.error(data.message);
         } else {
-          toast.error("Impossible de publier l’article");
+          toast.error("Laravel a refusé la publication.");
         }
       } else {
-        toast.error("Erreur réseau");
+        toast.error("Erreur réseau ou serveur inaccessible.");
       }
     } finally {
       setLoading(false);
@@ -179,10 +210,12 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
                   <path d="M5 12h14" />
                 </svg>
               </div>
+
               <div className="min-w-0">
                 <h3 className="text-sm font-bold text-gray-800">
                   Nouvelle publication
                 </h3>
+
                 <p className="mt-0.5 text-xs text-gray-500">
                   Partagez une actualité ou un projet avec vos visiteurs.
                 </p>
