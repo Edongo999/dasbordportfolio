@@ -11,12 +11,15 @@ interface ViewArticleModalProps {
 const getImageUrl = (image: string | null | undefined) => {
   if (!image) return "";
 
-  // L'API renvoie déjà une URL complète
+  // URL complète renvoyée par l'API
   if (image.startsWith("http://") || image.startsWith("https://")) {
-    return image;
+    return image.replace(
+      "http://laravel-backend-portfolio.onrender.com",
+      "https://laravel-backend-portfolio.onrender.com",
+    );
   }
 
-  // L'API renvoie uniquement le chemin de l'image
+  // Chemin relatif
   return `https://laravel-backend-portfolio.onrender.com/storage/${image}`;
 };
 

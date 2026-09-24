@@ -29,15 +29,18 @@ interface ArticlesTableProps {
 const getImageUrl = (image: string | null | undefined) => {
   if (!image) return "";
 
-  // L'API renvoie déjà une URL complète
+  // Si l'API renvoie déjà une URL complète,
+  // on force HTTPS pour éviter le Mixed Content.
   if (image.startsWith("http://") || image.startsWith("https://")) {
-    return image;
+    return image.replace(
+      "http://laravel-backend-portfolio.onrender.com",
+      "https://laravel-backend-portfolio.onrender.com",
+    );
   }
 
-  // L'API renvoie uniquement le chemin
+  // Si l'API renvoie uniquement le chemin
   return `https://laravel-backend-portfolio.onrender.com/storage/${image}`;
 };
-
 export default function ArticlesTable({
   articles,
   onEdit,
