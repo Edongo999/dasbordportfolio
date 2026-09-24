@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 
 interface ImageUploaderProps {
-  image?: File | null; // ✅ corriger ici
+  image?: File | null; // ✅ accepte un File
   progress: number;
   error?: string | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -35,20 +35,19 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       </div>
     )}
 
-    {image && (
+    {image && image instanceof File && (
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
         className="flex items-center gap-3"
       >
-        {/* ✅ si c’est un File, afficher son nom */}
-        {image instanceof File ? (
-          <p className="text-sm text-gray-600">{image.name}</p>
-        ) : (
-          <p className="text-sm text-gray-400">Aucune image sélectionnée</p>
-        )}
-
+        {/* ✅ aperçu correct avec URL.createObjectURL */}
+        <img
+          src={URL.createObjectURL(image)}
+          alt="Preview"
+          className="w-20 h-20 object-cover rounded-lg shadow-md border"
+        />
         <button
           type="button"
           onClick={onRemove}

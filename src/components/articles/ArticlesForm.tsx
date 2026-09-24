@@ -5,7 +5,7 @@ interface ArticleFormProps {
   title: string;
   content: string;
   category: string;
-  image?: File | null; // ✅ corriger ici
+  image?: File | null; // ✅ cohérent avec ImageUploader
   progress: number;
   error?: string | null;
   onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -67,7 +67,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
     )}
 
     <ImageUploader
-      image={image}
+      image={image} // ✅ passe le File directement
       progress={progress}
       error={error}
       onChange={onImageChange}
