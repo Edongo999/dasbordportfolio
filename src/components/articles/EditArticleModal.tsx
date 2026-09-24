@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Modal from "../Modal";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { ArticleManage } from "@/components/types/ArticleManage";
+import axiosInstance from "@/components/utils/axiosInstance";
 
 interface PaginatedArticles {
   data: ArticleManage[];
@@ -43,11 +43,8 @@ export default function EditArticleModal({
         category: article.category,
       });
 
-      setImagePreview(
-        article.image
-          ? `https://laravel-backend-portfolio.onrender.com/storage/${article.image}`
-          : undefined,
-      );
+      // ✅ simplification : l’API renvoie déjà une URL complète
+      setImagePreview(article.image || undefined);
 
       setImageFile(null);
     }
@@ -56,7 +53,6 @@ export default function EditArticleModal({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
-
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
@@ -67,7 +63,6 @@ export default function EditArticleModal({
 
     try {
       const formDataToSend = new FormData();
-
       formDataToSend.append("title", formData.title);
       formDataToSend.append("content", formData.content);
       formDataToSend.append("category", formData.category);
@@ -76,28 +71,13 @@ export default function EditArticleModal({
         formDataToSend.append("image", imageFile);
       }
 
-      const token = localStorage.getItem("token");
-
-      // =====================================================
-      // 1️⃣ MODIFIER L'ARTICLE
-      // =====================================================
-
-      const response = await axios.post(
-        `https://laravel-backend-portfolio.onrender.com/api/articles/${article.id}?_method=PUT`,
+      // ✅ utiliser axiosInstance → le token est ajouté automatiquement
+      const response = await axiosInstance.post(
+        `/articles/${article.id}?_method=PUT`,
         formDataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        },
       );
 
       const updatedArticle = response.data.article;
-
-      // =====================================================
-      // 2️⃣ METTRE À JOUR LE STATE IMMÉDIATEMENT
-      // =====================================================
 
       setArticles((prev) =>
         prev
@@ -110,44 +90,22 @@ export default function EditArticleModal({
           : prev,
       );
 
-      // =====================================================
-      // 3️⃣ LANCER LA TRADUCTION EN ANGLAIS
-      //    SANS BLOQUER LA MODIFICATION
-      // =====================================================
-
-      axios
-        .post(
-          `https://laravel-backend-portfolio.onrender.com/api/articles/${article.id}/translate`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-          },
-        )
+      // ✅ traduction avec axiosInstance
+      axiosInstance
+        .post(`/articles/${article.id}/translate`)
         .then(() => {
           console.log(
             `🌍 Article #${article.id} traduit en anglais avec succès.`,
           );
         })
         .catch((translationError) => {
-          console.error(
-            "❌ Erreur lors de la traduction de l'article :",
-            translationError,
-          );
+          console.error("❌ Erreur traduction :", translationError);
         });
 
-      // =====================================================
-      // 4️⃣ CONFIRMATION IMMÉDIATE
-      // =====================================================
-
       toast.success("Article modifié avec succès !");
-
       onClose();
     } catch (err) {
       console.error("Erreur modification :", err);
-
       toast.error("Impossible de modifier l’article");
     }
   };
@@ -159,12 +117,7 @@ export default function EditArticleModal({
         <input
           type="text"
           value={formData.title}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              title: e.target.value,
-            })
-          }
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           className="border rounded px-3 py-2"
           placeholder="Titre"
         />
@@ -173,10 +126,7 @@ export default function EditArticleModal({
         <textarea
           value={formData.content}
           onChange={(e) =>
-            setFormData({
-              ...formData,
-              content: e.target.value,
-            })
+            setFormData({ ...formData, content: e.target.value })
           }
           className="border rounded px-3 py-2"
           placeholder="Contenu"
@@ -186,10 +136,7 @@ export default function EditArticleModal({
         <select
           value={formData.category}
           onChange={(e) =>
-            setFormData({
-              ...formData,
-              category: e.target.value,
-            })
+            setFormData({ ...formData, category: e.target.value })
           }
           className="border rounded px-3 py-2"
         >
@@ -206,7 +153,6 @@ export default function EditArticleModal({
               alt="Aperçu"
               className="w-32 h-32 object-cover rounded-lg shadow-md"
             />
-
             <button
               type="button"
               onClick={() => {

@@ -34,7 +34,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Tech");
-  const [image, setImage] = useState<string | undefined>(undefined);
+  const [image, setImage] = useState<File | null>(null); // ✅ stocker directement le File
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
@@ -42,7 +42,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
     setTitle("");
     setContent("");
     setCategory("Tech");
-    setImage(undefined);
+    setImage(null);
     setError(null);
     setProgress(0);
     setSuccess(false);
@@ -64,23 +64,8 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       }
 
       setError(null);
-      setProgress(0);
-
-      const reader = new FileReader();
-
-      reader.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percent = Math.round((event.loaded / event.total) * 100);
-          setProgress(percent);
-        }
-      };
-
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-        setProgress(100);
-      };
-
-      reader.readAsDataURL(file);
+      setProgress(100); // ✅ on peut mettre directement 100% car le File est prêt
+      setImage(file);
     }
   };
 
@@ -97,13 +82,11 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       formData.append("category", category);
 
       if (image) {
-        const blob = await fetch(image).then((res) => res.blob());
-        formData.append("image", blob, "article.jpg");
+        formData.append("image", image); // ✅ envoyer directement le File
       }
 
       const token = localStorage.getItem("token");
 
-      // 1️⃣ Publier l'article
       const response = await axiosInstance.post("/articles", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -112,11 +95,9 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       });
 
       const newArticle = response.data.article;
-
-      // 2️⃣ Ajouter au dashboard
       onPublish(newArticle);
 
-      // 3️⃣ Traduction en arrière-plan
+      // Traduction en arrière-plan
       axiosInstance
         .post(
           `/articles/${newArticle.id}/translate`,
@@ -137,7 +118,6 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
           console.error("❌ Erreur traduction :", translationError);
         });
 
-      // 4️⃣ Feedback succès
       setSuccess(true);
 
       setTimeout(() => {
@@ -229,7 +209,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
               title={title}
               content={content}
               category={category}
-              image={image}
+              image={image ? image.name : undefined} // ✅ afficher le nom du fichier
               progress={progress}
               error={error}
               onTitleChange={(e) => setTitle(e.target.value)}
@@ -237,7 +217,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
               onCategoryChange={(e) => setCategory(e.target.value)}
               onImageChange={handleImageChange}
               onImageRemove={() => {
-                setImage(undefined);
+                setImage(null);
                 setProgress(0);
               }}
               onSubmit={handleSubmit}
