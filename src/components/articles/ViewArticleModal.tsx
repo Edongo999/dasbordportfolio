@@ -8,21 +8,6 @@ interface ViewArticleModalProps {
   article: ArticleManage | null;
 }
 
-const getImageUrl = (image: string | null | undefined) => {
-  if (!image) return "";
-
-  // URL complète renvoyée par l'API
-  if (image.startsWith("http://") || image.startsWith("https://")) {
-    return image.replace(
-      "http://laravel-backend-portfolio.onrender.com",
-      "https://laravel-backend-portfolio.onrender.com",
-    );
-  }
-
-  // Chemin relatif
-  return `https://laravel-backend-portfolio.onrender.com/storage/${image}`;
-};
-
 const ViewArticleModal: React.FC<ViewArticleModalProps> = ({
   open,
   onClose,
@@ -41,7 +26,7 @@ const ViewArticleModal: React.FC<ViewArticleModalProps> = ({
         {/* Image */}
         {article.image && (
           <img
-            src={getImageUrl(article.image)}
+            src={article.image} // ✅ URL Supabase directe
             alt={article.title}
             className="w-full h-64 object-cover rounded-lg shadow-md"
           />
