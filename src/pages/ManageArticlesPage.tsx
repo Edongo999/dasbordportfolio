@@ -44,11 +44,11 @@ export default function ManageArticlesPage({
     if (!articles) return;
 
     try {
-      console.log("🗑️ Suppression article :", id);
+      console.log(" Suppression article :", id);
 
       await axiosInstance.delete(`/articles/${id}`);
 
-      console.log("✅ Article supprimé");
+      console.log(" Article supprimé");
 
       // Recharger les articles depuis Laravel
       await fetchArticles(articles.current_page);
@@ -60,7 +60,7 @@ export default function ManageArticlesPage({
       // Feedback succès
       toast.success("Article supprimé avec succès.");
     } catch (error) {
-      console.error("❌ Erreur suppression article :", error);
+      console.error(" Erreur suppression article :", error);
 
       // Feedback erreur
       toast.error("Impossible de supprimer l’article.");
@@ -78,11 +78,11 @@ export default function ManageArticlesPage({
     if (!articles) return;
 
     try {
-      console.log("📦 Archivage article :", id);
+      console.log("Archivage article :", id);
 
       await axiosInstance.post(`/articles/${id}/archive`);
 
-      console.log("✅ Article archivé");
+      console.log("Article archivé");
 
       // Recharger les données
       await fetchArticles(articles.current_page);
@@ -94,7 +94,7 @@ export default function ManageArticlesPage({
       // Feedback succès
       toast.success("Article archivé avec succès.");
     } catch (error) {
-      console.error("❌ Erreur archivage article :", error);
+      console.error("Erreur archivage article :", error);
 
       // Feedback erreur
       toast.error("Impossible d’archiver l’article.");
@@ -111,11 +111,11 @@ export default function ManageArticlesPage({
     if (!articles) return;
 
     try {
-      console.log("♻️ Désarchivage article :", id);
+      console.log("Désarchivage article :", id);
 
       await axiosInstance.post(`/articles/${id}/unarchive`);
 
-      console.log("✅ Article désarchivé");
+      console.log("Article désarchivé");
 
       // Recharger les données
       await fetchArticles(articles.current_page);
@@ -127,7 +127,7 @@ export default function ManageArticlesPage({
       // Feedback succès
       toast.success("Article désarchivé avec succès.");
     } catch (error) {
-      console.error("❌ Erreur désarchivage article :", error);
+      console.error("Erreur désarchivage article :", error);
 
       // Feedback erreur
       toast.error("Impossible de désarchiver l’article.");

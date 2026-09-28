@@ -103,7 +103,7 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
         },
       });
 
-      console.log("✅ RÉPONSE LARAVEL :", response.data);
+      console.log(" RÉPONSE LARAVEL :", response.data);
 
       const newArticle = response.data.article;
 
@@ -123,11 +123,11 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
         )
         .then(() => {
           console.log(
-            `🌍 Article #${newArticle.id} traduit en anglais avec succès.`,
+            `Article #${newArticle.id} traduit en anglais avec succès.`,
           );
         })
         .catch((translationError) => {
-          console.error("❌ Erreur traduction :", translationError);
+          console.error(" Erreur traduction :", translationError);
         });
 
       setSuccess(true);
@@ -144,18 +144,18 @@ const PublishArticleModal: React.FC<PublishArticleModalProps> = ({
       }>;
 
       console.error("=================================");
-      console.error("❌ ERREUR PUBLICATION ARTICLE");
+      console.error(" ERREUR PUBLICATION ARTICLE");
       console.error("=================================");
 
-      console.error("🔴 STATUS :", axiosError.response?.status);
+      console.error(" STATUS :", axiosError.response?.status);
 
-      console.error("🔴 RESPONSE LARAVEL :", axiosError.response?.data);
+      console.error("RESPONSE LARAVEL :", axiosError.response?.data);
 
-      console.error("🔴 ERRORS LARAVEL :", axiosError.response?.data?.errors);
+      console.error(" ERRORS LARAVEL :", axiosError.response?.data?.errors);
 
-      console.error("🔴 MESSAGE LARAVEL :", axiosError.response?.data?.message);
+      console.error(" MESSAGE LARAVEL :", axiosError.response?.data?.message);
 
-      console.error("🔴 ERREUR AXIOS COMPLÈTE :", axiosError);
+      console.error(" ERREUR AXIOS COMPLÈTE :", axiosError);
 
       const data = axiosError.response?.data;
 

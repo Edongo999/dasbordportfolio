@@ -27,7 +27,7 @@ export default function DashboardLayout() {
 
       const response = await axiosInstance.get(`/articles?page=${page}`);
 
-      console.log("📦 Réponse articles :", response.data);
+      console.log(" Réponse articles :", response.data);
 
       setArticles(response.data);
     } catch (error) {

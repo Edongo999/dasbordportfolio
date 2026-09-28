@@ -38,11 +38,11 @@ export default function UserProvider({ children }: UserProviderProps) {
     }
 
     try {
-      console.log("👤 Chargement du profil...");
+      console.log(" Chargement du profil...");
 
       const response = await userService.profile();
 
-      console.log("👤 Profil reçu :", response.data);
+      console.log(" Profil reçu :", response.data);
 
       setUser(response.data.user ?? null);
     } catch (error) {

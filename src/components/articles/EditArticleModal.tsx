@@ -125,11 +125,11 @@ export default function EditArticleModal({
         .post(`/articles/${article.id}/translate`)
         .then(() => {
           console.log(
-            `🌍 Article #${article.id} traduit en anglais avec succès.`,
+            ` Article #${article.id} traduit en anglais avec succès.`,
           );
         })
         .catch((translationError) => {
-          console.error("❌ Erreur traduction :", translationError);
+          console.error(" Erreur traduction :", translationError);
         });
 
       // =====================================================
