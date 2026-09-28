@@ -1,39 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "@/Hook/useAuth"; // ✅ utilisation du hook
+import { useAuth } from "@/Hook/useAuth";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, checkUser } = useAuth(); // ✅ logique centralisée
+  const { user, checkUser } = useAuth();
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const verify = async () => {
-      await checkUser(); // ✅ vérifie la session via /user
-      setLoading(false);
+    const verifyAuthentication = async () => {
+      try {
+        await checkUser();
+      } finally {
+        setLoading(false);
+      }
     };
-    verify();
+
+    verifyAuthentication();
   }, []);
 
-  // Pendant que Laravel vérifie la session
+  // =====================================================
+  // VÉRIFICATION DU TOKEN
+  // =====================================================
+
   if (loading) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center">
         <div className="text-sm text-gray-500">
-          Vérification de la session...
+          Vérification de l'authentification...
         </div>
       </div>
     );
   }
 
-  // Session absente ou expirée
+  // =====================================================
+  // UTILISATEUR NON AUTHENTIFIÉ
+  // =====================================================
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // Session valide
+  // =====================================================
+  // UTILISATEUR AUTHENTIFIÉ
+  // =====================================================
+
   return <>{children}</>;
 }

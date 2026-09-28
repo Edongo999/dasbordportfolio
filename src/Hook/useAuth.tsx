@@ -1,41 +1,90 @@
 import { useState } from "react";
-import axios from "axios";
-import axiosInstance, { BACKEND_URL } from "@/components/utils/axiosInstance";
+import axiosInstance from "@/components/utils/axiosInstance";
 
 export const useAuth = () => {
-  const [user, setUser] = useState(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [user, setUser] = useState<any>(null);
 
-  // ✅ Initialiser CSRF correctement (hors /api)
-  const initCsrf = async () => {
-    await axios.get(`${BACKEND_URL}/sanctum/csrf-cookie`, {
-      withCredentials: true,
-    });
-  };
+  // =====================================================
+  // LOGIN
+  // =====================================================
 
-  // ✅ Login
   const login = async (email: string, password: string) => {
-    await initCsrf();
-    await axiosInstance.post("/login", { email, password });
-    const res = await axiosInstance.get("/user");
-    setUser(res.data);
+    const res = await axiosInstance.post("/login", {
+      email,
+      password,
+    });
+
+    // ===================================================
+    // RÉCUPÉRER LE TOKEN SANCTUM
+    // ===================================================
+
+    const token = res.data?.token;
+
+    if (!token) {
+      throw new Error("Aucun token d'authentification reçu du serveur.");
+    }
+
+    // ===================================================
+    // STOCKER LE TOKEN
+    // ===================================================
+
+    localStorage.setItem("token", token);
+
+    // ===================================================
+    // RÉCUPÉRER L'UTILISATEUR CONNECTÉ
+    // ===================================================
+
+    const userResponse = await axiosInstance.get("/user");
+
+    setUser(userResponse.data?.user || null);
+
+    return userResponse.data;
   };
 
-  // ✅ Logout
+  // =====================================================
+  // LOGOUT
+  // =====================================================
+
   const logout = async () => {
-    await axiosInstance.post("/logout");
-    setUser(null);
-  };
-
-  // ✅ Vérifier session
-  const checkUser = async () => {
     try {
-      const res = await axiosInstance.get("/user");
-      setUser(res.data);
-    } catch {
+      await axiosInstance.post("/logout");
+    } finally {
+      // Même si le serveur répond avec une erreur,
+      // on supprime le token localement.
+      localStorage.removeItem("token");
       setUser(null);
     }
   };
 
-  // ✅ Exporter initCsrf pour LoginForm
-  return { user, login, logout, checkUser, initCsrf };
+  // =====================================================
+  // VÉRIFIER L'UTILISATEUR CONNECTÉ
+  // =====================================================
+
+  const checkUser = async () => {
+    const token = localStorage.getItem("token");
+
+    // Aucun token = aucune session locale
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    try {
+      const res = await axiosInstance.get("/user");
+
+      setUser(res.data?.user || null);
+    } catch {
+      // Token invalide, expiré ou révoqué
+      localStorage.removeItem("token");
+      setUser(null);
+    }
+  };
+
+  return {
+    user,
+    login,
+    logout,
+    checkUser,
+  };
 };

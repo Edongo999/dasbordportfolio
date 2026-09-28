@@ -9,33 +9,31 @@ const axiosInstance = axios.create({
   headers: {
     Accept: "application/json",
   },
-
-  // =====================================================
-  // AUTHENTIFICATION PAR COOKIE HTTPONLY
-  // =====================================================
-  // Le navigateur envoie automatiquement le cookie
-  // de session Laravel.
-  withCredentials: true,
-
-  // =====================================================
-  // CSRF SANCTUM
-  // =====================================================
-  xsrfCookieName: "XSRF-TOKEN",
-  xsrfHeaderName: "X-XSRF-TOKEN",
 });
 
 // =====================================================
 // INTERCEPTOR REQUEST
 // =====================================================
-// Aucun token Bearer.
-// Aucun localStorage.getItem("token").
+// Récupère automatiquement le token Sanctum
+// enregistré dans le localStorage et l'envoie
+// dans le header Authorization.
 //
-// L'authentification repose maintenant uniquement
-// sur les cookies gérés par Laravel/Sanctum.
+// Authorization: Bearer <token>
+// =====================================================
+
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Si on envoie un FormData, on laisse Axios/navigateur
-    // définir automatiquement le Content-Type + boundary.
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // =================================================
+    // FORMDATA
+    // =================================================
+    // On laisse Axios définir automatiquement
+    // le Content-Type avec le boundary.
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
     }
