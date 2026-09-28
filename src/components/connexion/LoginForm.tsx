@@ -2,14 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 
-import { useAuth } from "@/Hook/useAuth"; //  logique centralisée
+import { useAuth } from "@/Hook/useAuth"; // logique centralisée
+import axiosInstance from "@/components/utils/axiosInstance"; // ✅ pour user-by-email
 import LoginLockout from "@/components/connexion/Lockout";
 import LoginHeader from "@/components/connexion/LoginHeader";
 import LoginFields from "@/components/connexion/LoginFields";
 import LoginButton from "@/components/connexion/LoginButton";
 
 export default function LoginForm() {
-  const { login } = useAuth(); //  utilisation du hook
+  const { login, initCsrf } = useAuth(); // ✅ récupérer initCsrf du hook
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -48,13 +49,15 @@ export default function LoginForm() {
 
     debounceRef.current = setTimeout(async () => {
       try {
-        const response = await fetch("/api/user-by-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: value }),
+        // ✅ récupérer le cookie CSRF avant le POST
+        await initCsrf();
+
+        const response = await axiosInstance.post("/user-by-email", {
+          email: value,
         });
-        const data = await response.json();
-        setUserImage(data?.image_url || "/images/default-avatar2.webp");
+        setUserImage(
+          response.data?.image_url || "/images/default-avatar2.webp",
+        );
       } catch {
         setUserImage("/images/default-avatar2.webp");
       }
@@ -69,8 +72,7 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      // ✅ toute la logique CSRF + login est gérée par useAuth
-      await login(email, password);
+      await login(email, password); // ✅ toute la logique CSRF + login est gérée par useAuth
       navigate("/welcome", { replace: true });
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
