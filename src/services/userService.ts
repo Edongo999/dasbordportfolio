@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import axiosInstance from "@/components/utils/axiosInstance";
 
 export interface User {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,34 +29,26 @@ export interface UpdatePasswordPayload {
 
 const userService = {
   profile: () =>
-    api.get<ProfileResponse>(
-      "/user/profile",
+    axiosInstance.get<ProfileResponse>(
+      "/user/profile"
     ),
 
   updateName: (data: { name: string }) =>
-    api.post(
+    axiosInstance.post(
       "/user/update-name",
-      data,
+      data
     ),
 
   updatePhoto: (formData: FormData) =>
-    api.post(
+    axiosInstance.post(
       "/user/update-photo",
-      formData,
-      {
-        headers: {
-          "Content-Type":
-            "multipart/form-data",
-        },
-      },
+      formData
     ),
 
-  updatePassword: (
-    data: UpdatePasswordPayload,
-  ) =>
-    api.post(
+  updatePassword: (data: UpdatePasswordPayload) =>
+    axiosInstance.post(
       "/user/update-password",
-      data,
+      data
     ),
 };
 

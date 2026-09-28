@@ -9,13 +9,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// =====================================================
-// INTERCEPTOR REQUEST
-// =====================================================
-// Récupère automatiquement le token stocké dans localStorage
-// et l'ajoute dans le header Authorization.
-// Authorization: Bearer <token>
-// =====================================================
+// Ajout automatique du token Bearer
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -24,11 +18,8 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // =================================================
-    // FORMDATA
-    // =================================================
-    // On laisse Axios définir automatiquement
-    // le Content-Type avec le boundary.
+    // Laisser Axios gérer automatiquement le Content-Type
+    // pour les fichiers FormData
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
     }
@@ -38,5 +29,21 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Gestion d'un token expiré/invalide
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export { BACKEND_URL };
+
 export default axiosInstance;
