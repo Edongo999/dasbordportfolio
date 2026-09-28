@@ -1,29 +1,39 @@
 import axios from "axios";
 
+const BACKEND_URL =
+  "https://laravel-backend-portfolio.onrender.com";
+
 const axiosInstance = axios.create({
-  baseURL: "https://laravel-backend-portfolio.onrender.com/api",
+  baseURL: `${BACKEND_URL}/api`,
 
   headers: {
     Accept: "application/json",
   },
 
-  // ✅ Autorise l'envoi et la réception des cookies Laravel
+  // =====================================================
+  // AUTHENTIFICATION PAR COOKIE HTTPONLY
+  // =====================================================
+  // Le navigateur envoie automatiquement le cookie
+  // de session Laravel.
   withCredentials: true,
+
+  // =====================================================
+  // CSRF SANCTUM
+  // =====================================================
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN",
 });
 
 // =====================================================
-// AJOUT AUTOMATIQUE DU TOKEN
+// INTERCEPTOR REQUEST
 // =====================================================
-// ⚠️ Temporairement conservé pendant la migration.
-// Nous le supprimerons une fois le cookie HttpOnly validé.
+// Aucun token Bearer.
+// Aucun localStorage.getItem("token").
+//
+// L'authentification repose maintenant uniquement
+// sur les cookies gérés par Laravel/Sanctum.
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
     // Si on envoie un FormData, on laisse Axios/navigateur
     // définir automatiquement le Content-Type + boundary.
     if (config.data instanceof FormData) {
@@ -34,5 +44,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+
+export { BACKEND_URL };
 
 export default axiosInstance;
