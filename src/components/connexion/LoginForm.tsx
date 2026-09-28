@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 
-import { useAuth } from "@/hooks/useAuth"; // ✅ logique centralisée
+import { useAuth } from "@/Hook/useAuth"; //  logique centralisée
 import LoginLockout from "@/components/connexion/Lockout";
 import LoginHeader from "@/components/connexion/LoginHeader";
 import LoginFields from "@/components/connexion/LoginFields";
 import LoginButton from "@/components/connexion/LoginButton";
 
 export default function LoginForm() {
-  const { login } = useAuth(); // ✅ utilisation du hook
+  const { login } = useAuth(); //  utilisation du hook
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -101,7 +101,10 @@ export default function LoginForm() {
         {!isLocked && <LoginHeader userImage={userImage} />}
 
         {isLocked ? (
-          <LoginLockout seconds={lockoutSeconds} setSeconds={setLockoutSeconds} />
+          <LoginLockout
+            seconds={lockoutSeconds}
+            setSeconds={setLockoutSeconds}
+          />
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
