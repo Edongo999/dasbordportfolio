@@ -1,59 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import axiosInstance from "@/components/utils/axiosInstance";
+import { useAuth } from "@/hooks/useAuth"; // ✅ utilisation du hook
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export default function ProtectedRoute({
-  children,
-}: ProtectedRouteProps) {
-  const [checkingAuth, setCheckingAuth] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { user, checkUser } = useAuth(); // ✅ logique centralisée
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-
-    const checkAuthentication = async () => {
-      try {
-        // Laravel vérifie automatiquement le cookie
-        // de session HttpOnly grâce à withCredentials: true.
-        const response = await axiosInstance.get("/user");
-
-        if (mounted) {
-          console.log(
-            "ProtectedRoute - session : AUTHENTIFIÉE ✅",
-            response.data
-          );
-
-          setAuthenticated(true);
-        }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        if (mounted) {
-          console.log(
-            "ProtectedRoute - session : NON AUTHENTIFIÉE ❌"
-          );
-
-          setAuthenticated(false);
-        }
-      } finally {
-        if (mounted) {
-          setCheckingAuth(false);
-        }
-      }
+    const verify = async () => {
+      await checkUser(); // ✅ vérifie la session via /user
+      setLoading(false);
     };
-
-    checkAuthentication();
-
-    return () => {
-      mounted = false;
-    };
+    verify();
   }, []);
 
   // Pendant que Laravel vérifie la session
-  if (checkingAuth) {
+  if (loading) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center">
         <div className="text-sm text-gray-500">
@@ -64,7 +30,7 @@ export default function ProtectedRoute({
   }
 
   // Session absente ou expirée
-  if (!authenticated) {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
