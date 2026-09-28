@@ -20,24 +20,20 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     };
 
     verifyAuthentication();
-  }, [checkUser]);
+  }, []);
 
   // =====================================================
-  // ÉCRAN DE CHARGEMENT
+  // VÉRIFICATION INITIALE
   // =====================================================
+
   if (loading) {
-    return (
-      <div className="min-h-[100dvh] flex items-center justify-center">
-        <div className="text-sm text-gray-500">
-          Vérification de l'authentification...
-        </div>
-      </div>
-    );
+    return <div className="min-h-[100dvh] bg-white" />;
   }
 
   // =====================================================
   // UTILISATEUR NON AUTHENTIFIÉ
   // =====================================================
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
@@ -45,5 +41,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   // =====================================================
   // UTILISATEUR AUTHENTIFIÉ
   // =====================================================
+
   return <>{children}</>;
 }
