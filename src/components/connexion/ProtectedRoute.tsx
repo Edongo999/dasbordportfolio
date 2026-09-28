@@ -8,7 +8,6 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, checkUser } = useAuth();
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,12 +20,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     };
 
     verifyAuthentication();
-  }, []);
+  }, [checkUser]);
 
   // =====================================================
-  // VÉRIFICATION DU TOKEN
+  // ÉCRAN DE CHARGEMENT
   // =====================================================
-
   if (loading) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center">
@@ -40,7 +38,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   // =====================================================
   // UTILISATEUR NON AUTHENTIFIÉ
   // =====================================================
-
   if (!user) {
     return <Navigate to="/login" replace />;
   }
@@ -48,6 +45,5 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   // =====================================================
   // UTILISATEUR AUTHENTIFIÉ
   // =====================================================
-
   return <>{children}</>;
 }

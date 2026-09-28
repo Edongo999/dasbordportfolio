@@ -1,11 +1,9 @@
 import axios from "axios";
 
-const BACKEND_URL =
-  "https://laravel-backend-portfolio.onrender.com";
+const BACKEND_URL = "https://laravel-backend-portfolio.onrender.com";
 
 const axiosInstance = axios.create({
   baseURL: `${BACKEND_URL}/api`,
-
   headers: {
     Accept: "application/json",
   },
@@ -14,13 +12,10 @@ const axiosInstance = axios.create({
 // =====================================================
 // INTERCEPTOR REQUEST
 // =====================================================
-// Récupère automatiquement le token Sanctum
-// enregistré dans le localStorage et l'envoie
-// dans le header Authorization.
-//
+// Récupère automatiquement le token stocké dans localStorage
+// et l'ajoute dans le header Authorization.
 // Authorization: Bearer <token>
 // =====================================================
-
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -44,5 +39,4 @@ axiosInstance.interceptors.request.use(
 );
 
 export { BACKEND_URL };
-
 export default axiosInstance;
