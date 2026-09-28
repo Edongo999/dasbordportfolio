@@ -2,33 +2,48 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://laravel-backend-portfolio.onrender.com/api",
-
-  // ✅ Autorise l'envoi/réception des cookies HttpOnly
-  withCredentials: true,
-
-  // ✅ Configuration CSRF Laravel
-  xsrfCookieName: "XSRF-TOKEN",
-  xsrfHeaderName: "X-XSRF-TOKEN",
+  headers: {
+    Accept: "application/json",
+  },
 });
 
-// ⚠️ Pour l'instant, on garde encore le token.
-// On le supprimera après avoir validé l'authentification HttpOnly.
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+// =====================================================
+// TOKEN BEARER
+// =====================================================
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
 
-  return config;
-});
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
-// Gestion des erreurs 401
+    // =================================================
+    // FORMDATA
+    // =================================================
+
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// =====================================================
+// GESTION DES ERREURS 401
+// =====================================================
+
 api.interceptors.response.use(
   (response) => response,
+
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
       window.location.href = "/login";
     }
 
