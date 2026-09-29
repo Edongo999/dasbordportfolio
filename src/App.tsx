@@ -23,7 +23,6 @@ import { AuthProvider } from "@/components/connexion/AuthProvider";
 import axiosInstance from "@/components/utils/axiosInstance";
 
 import { ArticleManage } from "@/components/types/ArticleManage";
-import NavigationLoader from "./components/Navigation/NavigationLoader";
 
 // =====================================================
 // TYPES
@@ -96,7 +95,6 @@ export default function App() {
 
   return (
     <Router>
-      <NavigationLoader />
       <Toaster position="top-right" />
 
       <AuthProvider>
@@ -187,7 +185,7 @@ function DashboardContent({
   fetchStats,
 }: DashboardContentProps) {
   // =====================================================
-  // CHARGEMENT GLOBAL
+  // CHARGEMENT INITIAL DU DASHBOARD
   // =====================================================
 
   useEffect(() => {
@@ -289,13 +287,17 @@ interface DashboardHomeProps {
 function DashboardHome({ stats, articles }: DashboardHomeProps) {
   return (
     <>
-      {/* STATISTIQUES */}
+      {/* =================================================
+          STATISTIQUES
+      ================================================= */}
 
       {stats && <StatCardSection stats={stats} />}
 
       <DashboardStats />
 
-      {/* ARTICLES */}
+      {/* =================================================
+          ARTICLES
+      ================================================= */}
 
       {articles && <ArticleTable articles={articles.data} />}
     </>
