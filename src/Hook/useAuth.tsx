@@ -9,9 +9,13 @@ export const useAuth = () => {
   // LOGIN
   // =====================================================
   const login = async (email: string, password: string) => {
-    const res = await axiosInstance.post("/login", { email, password });
+    const res = await axiosInstance.post("/login", {
+      email,
+      password,
+    });
 
     const token = res.data?.token;
+
     if (!token) {
       throw new Error("Aucun token d'authentification reçu du serveur.");
     }
@@ -19,11 +23,15 @@ export const useAuth = () => {
     // Stocker le token
     localStorage.setItem("token", token);
 
-    // Récupérer l'utilisateur connecté
-    const userResponse = await axiosInstance.get("/user");
-    setUser(userResponse.data?.user || null);
+    // Le backend renvoie déjà l'utilisateur
+    const authenticatedUser = res.data?.user || null;
 
-    return userResponse.data;
+    setUser(authenticatedUser);
+
+    return {
+      ...res.data,
+      user: authenticatedUser,
+    };
   };
 
   // =====================================================
@@ -34,6 +42,7 @@ export const useAuth = () => {
       await axiosInstance.post("/logout");
     } finally {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setUser(null);
     }
   };
@@ -43,6 +52,7 @@ export const useAuth = () => {
   // =====================================================
   const checkUser = async () => {
     const token = localStorage.getItem("token");
+
     if (!token) {
       setUser(null);
       return;
@@ -53,9 +63,15 @@ export const useAuth = () => {
       setUser(res.data?.user || null);
     } catch {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setUser(null);
     }
   };
 
-  return { user, login, logout, checkUser };
+  return {
+    user,
+    login,
+    logout,
+    checkUser,
+  };
 };
