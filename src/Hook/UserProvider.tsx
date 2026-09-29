@@ -14,6 +14,8 @@ export interface UserContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 
   refreshUser: () => Promise<void>;
+
+  loading: boolean;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -28,32 +30,42 @@ interface UserProviderProps {
 export default function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<User | null>(null);
 
+  // Indique si la vérification initiale de l'utilisateur est terminée
+  const [loading, setLoading] = useState(true);
+
   const fetchUser = useCallback(async () => {
     const token = localStorage.getItem("token");
 
-    // Aucun token = aucun profil à récupérer
+    // Aucun token = utilisateur non connecté
     if (!token) {
       setUser(null);
+      setLoading(false);
       return;
     }
 
     try {
-      console.log(" Chargement du profil...");
+      console.log("🔐 Vérification de l'authentification...");
 
       const response = await userService.profile();
 
-      console.log(" Profil reçu :", response.data);
+      console.log("👤 Profil reçu :", response.data);
 
       setUser(response.data.user ?? null);
     } catch (error) {
-      console.error("Erreur chargement profil :", error);
+      console.error("❌ Erreur chargement profil :", error);
+
+      // Token invalide ou expiré
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
 
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   // =====================================================
-  // CHARGEMENT INITIAL DU PROFIL
+  // VÉRIFICATION INITIALE
   // =====================================================
 
   useEffect(() => {
@@ -66,7 +78,13 @@ export default function UserProvider({ children }: UserProviderProps) {
   // =====================================================
 
   const refreshUser = useCallback(async () => {
-    await fetchUser();
+    setLoading(true);
+
+    try {
+      await fetchUser();
+    } finally {
+      setLoading(false);
+    }
   }, [fetchUser]);
 
   return (
@@ -75,6 +93,7 @@ export default function UserProvider({ children }: UserProviderProps) {
         user,
         setUser,
         refreshUser,
+        loading,
       }}
     >
       {children}
