@@ -24,78 +24,6 @@ export default function WelcomePage() {
 
         if (!token) {
           console.log("Aucun token → retour login");
-          navigate("/login", { replace: true });
-          return;
-        }
-
-        // =====================================================
-        // CONFIGURER AXIOS AVEC LE TOKEN
-        // =====================================================
-
-        axiosInstance.defaults.headers.common["Authorization"] =
-          `Bearer ${token}`;
-
-        // =====================================================
-        // RÉCUPÉRER L'UTILISATEUR CONNECTÉ
-        // =====================================================
-
-        console.log("Chargement de l'utilisateur...");
-
-        const response = await axiosInstance.get("/user");
-
-        console.log("Utilisateur reçu :", response.data);
-
-        if (cancelled) return;
-
-        const user = response.data;
-
-        // =====================================================
-        // NOM
-        // =====================================================
-
-        setUserName(user.name || "Utilisateur");
-
-        localStorage.setItem("userName", user.name || "Utilisateur");
-
-        // =====================================================
-        // IMAGE
-        // =====================================================
-        let imageUrl = "/images/default-avatar.png";
-
-        // Essayer d'abord depuis localStorage
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser.image_url) {
-            imageUrl = parsedUser.image_url;
-          }
-        }
-
-        // Sinon, utiliser la réponse API
-        if (user.image_url) {
-          imageUrl = user.image_url;
-        }
-
-        console.log("URL finale de l'image :", imageUrl);
-
-        setUserImage(imageUrl);
-        localStorage.setItem("userImage", imageUrl);
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        console.error("Erreur récupération utilisateur :", error);
-
-        // =====================================================
-
-        // =====================================================
-        // SI LE TOKEN EST INVALIDE
-        // =====================================================
-
-        if (error?.response?.status === 401) {
-          console.log("Token invalide ou expiré → suppression du token");
-
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
 
           navigate("/login", {
             replace: true,
@@ -104,8 +32,87 @@ export default function WelcomePage() {
           return;
         }
 
-        // Pour les autres erreurs, on ne détruit PAS
-        // immédiatement le token.
+        // =====================================================
+        // RÉCUPÉRER L'UTILISATEUR CONNECTÉ
+        // =====================================================
+        // axiosInstance ajoute automatiquement :
+        // Authorization: Bearer <token>
+
+        console.log("Chargement de l'utilisateur...");
+
+        const response = await axiosInstance.get("/user");
+
+        console.log("Réponse utilisateur reçue :", response.data);
+
+        if (cancelled) return;
+
+        // =====================================================
+        // RÉCUPÉRER LE VRAI OBJET USER
+        // =====================================================
+
+        const user = response.data?.user;
+
+        if (!user) {
+          console.error("Aucun utilisateur reçu dans la réponse.");
+
+          return;
+        }
+
+        console.log("Utilisateur connecté :", user);
+
+        // =====================================================
+        // NOM
+        // =====================================================
+
+        const name = user.name || "Utilisateur";
+
+        setUserName(name);
+
+        localStorage.setItem("userName", name);
+
+        // =====================================================
+        // IMAGE
+        // =====================================================
+
+        const imageUrl =
+          user.image_url || user.image || "/images/default-avatar.png";
+
+        console.log("URL finale de l'image :", imageUrl);
+
+        setUserImage(imageUrl);
+
+        // Sauvegarder également les informations utilisateur
+        localStorage.setItem("user", JSON.stringify(user));
+
+        localStorage.setItem("userImage", imageUrl);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        console.error("Erreur récupération utilisateur :", error);
+
+        // =====================================================
+        // TOKEN INVALIDE OU EXPIRÉ
+        // =====================================================
+
+        if (error?.response?.status === 401) {
+          console.log("Token invalide ou expiré → suppression du token");
+
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("userName");
+          localStorage.removeItem("userImage");
+
+          navigate("/login", {
+            replace: true,
+          });
+
+          return;
+        }
+
+        // =====================================================
+        // AUTRES ERREURS
+        // =====================================================
+
         console.error("Le serveur a rencontré une erreur.");
       }
     };
