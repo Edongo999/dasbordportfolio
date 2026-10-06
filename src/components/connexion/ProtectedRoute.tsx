@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useUser } from "@/Hook/UserProvider";
+import { useAuth } from "@/Hook/useAuth";
 import NavigationLoader from "@/components/Navigation/NavigationLoader";
 
 interface ProtectedRouteProps {
@@ -8,27 +8,24 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useUser();
+  const { user, checkUser } = useAuth();
+  const [loading, setLoading] = useState(true);
 
-  // =====================================================
-  // VÉRIFICATION INITIALE
-  // =====================================================
+  useEffect(() => {
+    const verify = async () => {
+      await checkUser();
+      setLoading(false);
+    };
+    verify();
+  }, [checkUser]);
 
   if (loading) {
     return <NavigationLoader />;
   }
 
-  // =====================================================
-  // UTILISATEUR NON AUTHENTIFIÉ
-  // =====================================================
-
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-
-  // =====================================================
-  // UTILISATEUR AUTHENTIFIÉ
-  // =====================================================
 
   return <>{children}</>;
 }

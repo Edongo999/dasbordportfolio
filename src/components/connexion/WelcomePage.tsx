@@ -13,57 +13,47 @@ export default function WelcomePage() {
   // =====================================================
   // CHARGEMENT DE L'UTILISATEUR
   // =====================================================
-
   useEffect(() => {
     let cancelled = false;
 
     const loadUser = async () => {
       try {
         const token = localStorage.getItem("token");
-
         console.log("🔐 Token présent :", !!token);
 
         if (!token) {
-          navigate("/login", {
-            replace: true,
-          });
-
+          navigate("/login", { replace: true });
           return;
         }
 
         console.log("👤 Chargement de l'utilisateur...");
 
         const response = await axiosInstance.get("/user");
-
         console.log("📦 Réponse complète :", response.data);
 
         if (cancelled) return;
 
-        const user = response.data?.user;
-
-        console.log("👤 Utilisateur récupéré :", user);
+        // ✅ Lecture robuste de la réponse
+        const user = response.data?.user || response.data;
 
         if (!user) {
-          console.error("❌ Aucun utilisateur dans response.data.user");
-
+          console.error("❌ Aucun utilisateur trouvé");
+          navigate("/login", { replace: true });
           return;
         }
 
         // =================================================
         // NOM
         // =================================================
-
         const name = user.name || "Utilisateur";
 
         // =================================================
         // PHOTO
         // =================================================
-
         const imageUrl =
           user.image_url || user.image || "/images/default-avatar.png";
 
         console.log("👤 Nom :", name);
-
         console.log("🖼️ Photo :", imageUrl);
 
         setUserName(name);
@@ -71,15 +61,11 @@ export default function WelcomePage() {
 
         // Sauvegarde locale
         localStorage.setItem("userName", name);
-
         localStorage.setItem("userImage", imageUrl);
-
         localStorage.setItem("user", JSON.stringify(user));
 
-        // IMPORTANT :
-        // l'utilisateur est maintenant complètement chargé
+        // ✅ Utilisateur complètement chargé
         setUserLoaded(true);
-
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("❌ Erreur récupération utilisateur :", error);
@@ -90,9 +76,7 @@ export default function WelcomePage() {
           localStorage.removeItem("userName");
           localStorage.removeItem("userImage");
 
-          navigate("/login", {
-            replace: true,
-          });
+          navigate("/login", { replace: true });
         }
       }
     };
@@ -107,13 +91,8 @@ export default function WelcomePage() {
   // =====================================================
   // PROGRESSION
   // =====================================================
-
   useEffect(() => {
-    // NE PAS commencer tant que l'utilisateur
-    // n'est pas récupéré
-    if (!userLoaded) {
-      return;
-    }
+    if (!userLoaded) return;
 
     console.log("✅ Utilisateur chargé → démarrage de la progression");
 
@@ -123,13 +102,9 @@ export default function WelcomePage() {
 
         if (next >= 100) {
           clearInterval(interval);
-
           setTimeout(() => {
-            navigate("/dashboard", {
-              replace: true,
-            });
+            navigate("/dashboard", { replace: true });
           }, 100);
-
           return 100;
         }
 
@@ -137,20 +112,16 @@ export default function WelcomePage() {
       });
     }, 300);
 
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, [userLoaded, navigate]);
 
   // =====================================================
   // AFFICHAGE
   // =====================================================
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-600 via-blue-500 to-purple-600 text-white">
       <div className="bg-white shadow-2xl rounded-2xl p-8 text-center text-gray-800 w-[90%] max-w-md">
         {/* PHOTO */}
-
         <div className="flex justify-center mb-6">
           <div className="w-24 h-24 rounded-full border-4 border-blue-600 overflow-hidden shadow-lg">
             <img
@@ -165,11 +136,9 @@ export default function WelcomePage() {
         </div>
 
         {/* NOM */}
-
         <h2 className="text-2xl font-bold mb-4">Bienvenue {userName}</h2>
 
         {/* MESSAGE */}
-
         <p className="text-lg mb-6">
           {!userLoaded
             ? "Chargement de votre profil…"
@@ -177,22 +146,17 @@ export default function WelcomePage() {
         </p>
 
         {/* PROGRESSION */}
-
         <div className="w-full bg-gray-200 rounded-full h-3 mb-4 overflow-hidden">
           <div
             className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-            style={{
-              width: `${progress}%`,
-            }}
+            style={{ width: `${progress}%` }}
           />
         </div>
 
         {/* POURCENTAGE */}
-
         <p className="text-sm text-gray-500 mb-4">{progress}%</p>
 
         {/* LOADER */}
-
         <div className="flex justify-center space-x-2">
           <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce" />
           <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce delay-150" />
